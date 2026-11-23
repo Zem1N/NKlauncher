@@ -1,0 +1,49 @@
+name: Build NKLauncher
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            artifact: NKLauncher-Windows
+            sep: ";"
+            icon: "--icon=icon.ico"
+          - os: macos-latest
+            artifact: NKLauncher-macOS
+            sep: ":"
+            icon: ""
+          - os: ubuntu-latest
+            artifact: NKLauncher-Linux
+            sep: ":"
+            icon: ""
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller customtkinter tkinterdnd2 minecraft-launcher-lib pillow
+
+      - name: Build executable
+        run: |
+          python -m PyInstaller --noconfirm --onefile --windowed --name "NKLauncher" ${{ matrix.icon }} --add-data "icon.ico${{ matrix.sep }}." --collect-all customtkinter --collect-all tkinterdnd2 --collect-all minecraft_launcher_lib --collect-all PIL mclauncher.py
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: dist/
