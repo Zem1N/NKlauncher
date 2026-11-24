@@ -11,7 +11,7 @@ jobs:
           - os: windows-latest
             artifact: NKLauncher-Windows-EXE
             sep: ";"
-            icon: "--icon=icon.ico"
+            icon: "--icon=icon.ico --version-file=version_info.txt"
           - os: macos-latest
             artifact: NKLauncher-macOS-APP-DMG
             sep: ":"
