@@ -49,6 +49,8 @@ def verify_password(username, password):
     return saved_hash == _hash_pwd(password)
 
 def has_password(username):
+    d = load_accounts() if "load_accounts" in globals() else {}
+    if isinstance(d, list): return False
     data = load_accounts()
     return bool(data.get(username, {}).get("password_hash", ""))
 
