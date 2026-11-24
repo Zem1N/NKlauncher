@@ -1,4 +1,4 @@
-name: Build NKLauncher
+name: Build NKLauncher (EXE, APP, DMG)
 on:
   push:
     branches: [ main ]
@@ -9,11 +9,11 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-            artifact: NKLauncher-Windows
+            artifact: NKLauncher-Windows-EXE
             sep: ";"
             icon: "--icon=icon.ico"
           - os: macos-latest
-            artifact: NKLauncher-macOS
+            artifact: NKLauncher-macOS-APP-DMG
             sep: ":"
             icon: "--icon=icon.icns"
           - os: ubuntu-latest
@@ -32,8 +32,16 @@ jobs:
       - name: Convert icon for macOS
         if: matrix.os == 'macos-latest'
         run: python -c "from PIL import Image; Image.open('icon.ico').save('icon.icns')"
-      - run: |
+      - name: Build executable
+        run: |
           python -m PyInstaller --noconfirm --onefile --windowed --name "NKLauncher" ${{ matrix.icon }} --add-data "icon.ico${{ matrix.sep }}." --collect-all customtkinter --collect-all tkinterdnd2 --collect-all minecraft_launcher_lib --collect-all PIL mclauncher.py
+      - name: Package macOS DMG
+        if: matrix.os == 'macos-latest'
+        run: |
+          mkdir -p dmg_root
+          cp -R dist/NKLauncher.app dmg_root/
+          ln -s /Applications dmg_root/Applications
+          hdiutil create -volname "NKLauncher" -srcfolder dmg_root -ov -format UDZO dist/NKLauncher-macOS.dmg
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}

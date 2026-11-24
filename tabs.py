@@ -1,3 +1,4 @@
+from PIL import Image
 import os, customtkinter as ctk
 import engine, lang, skin3d, ver_menu, features_pro, ui_theme
 
@@ -11,9 +12,13 @@ def build_sidebar(app):
     app.sidebar.grid_rowconfigure(11, weight=1)
 
     logo = ctk.CTkFrame(app.sidebar, fg_color="transparent")
-    logo.grid(row=0, column=0, padx=20, pady=(22, 6), sticky="ew")
-    ctk.CTkLabel(logo, text="NK", font=ctk.CTkFont("Arial Black", 24, "bold"), text_color=C["accent"]).pack(side="left")
-    ctk.CTkLabel(logo, text="Launcher", font=ctk.CTkFont("Arial Black", 24, "bold"), text_color="#ffffff").pack(side="left")
+    logo.grid(row=0, column=0, padx=14, pady=(22, 6), sticky="ew")
+    ico_p = os.path.join(getattr(__import__("sys"), "_MEIPASS", os.path.dirname(os.path.abspath(__file__))), "icon.ico")
+    if os.path.exists(ico_p):
+        ico_im = Image.open(ico_p).convert("RGBA").resize((25, 25), Image.Resampling.NEAREST)
+        ctk.CTkLabel(logo, text="", image=ctk.CTkImage(light_image=ico_im, dark_image=ico_im, size=(25, 25))).pack(side="left", padx=(0, 6))
+    ctk.CTkLabel(logo, text="NK", font=ctk.CTkFont("Arial Black", 20, "bold"), text_color=C["accent"]).pack(side="left")
+    ctk.CTkLabel(logo, text="Launcher", font=ctk.CTkFont("Arial Black", 20, "bold"), text_color="#ffffff").pack(side="left")
 
     pill = ctk.CTkFrame(app.sidebar, fg_color=C["input"], corner_radius=8, border_width=1, border_color=C["border"])
     pill.grid(row=1, column=0, padx=18, pady=(0, 18), sticky="ew")
@@ -99,8 +104,8 @@ def build_home_tab(app):
     lw = list((1100,))
     def _upd_banner(w=None):
         cur_w = w or box.winfo_width()
-        if cur_w > 200 and abs(cur_w - lw) > 10:
-            lw = cur_w
+        if cur_w > 200 and abs(cur_w - lw[0]) > 10:
+            lw[0] = cur_w
             lbl.configure(image=ui_theme.make_hero_banner(cur_w, 135))
     box.bind(chr(60)+"Configure"+chr(62), lambda ev: _upd_banner(ev.width))
     app.after(200, _upd_banner)
